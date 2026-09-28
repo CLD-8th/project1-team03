@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FOODY - 맛집 찾기</title>
+
+    <link rel="stylesheet" th:href="@{/index.css}">
+</head>
+
+<body>
+
+<header class="header">
+    <div class="header-inner">
+
+        <a href="/shops" class="logo">
+            FOODY
+        </a>
+
+        <nav class="nav">
+
+            <!-- 로그인 안 된 상태 -->
+            <th:block th:if="${session.loginMember == null}">
+                <a href="/login">로그인</a>
+                <a href="/join">회원가입</a>
+            </th:block>
+
+            <!-- 로그인 된 상태 -->
+            <th:block th:if="${session.loginMember != null}">
+        <span th:text="|${session.loginMember.nickname}님|">
+            닉네임님
+        </span>
+
+                <a href="/mypage">마이페이지</a>
+                <a href="/logout">로그아웃</a>
+            </th:block>
+
+        </nav>
+
+    </div>
+</header>
+
+
+<main class="container">
+
+    <section>
+        /*
+
+    </section>
+
+
+    <!-- 카테고리 -->
+    <section class="category-section">
+
+        <div class="section-title">
+
+        </div>
+
+        <div class="category-list">
+
+            <a
+                    th:href="@{/shops}"
+                    class="category-button"
+                    th:classappend="${category == null or category == ''} ? ' active'">
+                전체
+            </a>
+
+            <a
+                    th:href="@{/shops(category='한식')}"
+                    class="category-button"
+                    th:classappend="${category == '한식'} ? ' active'">
+                한식
+            </a>
+
+            <a
+                    th:href="@{/shops(category='중식')}"
+                    class="category-button"
+                    th:classappend="${category == '중식'} ? ' active'">
+                중식
+            </a>
+
+            <a
+                    th:href="@{/shops(category='일식')}"
+                    class="category-button"
+                    th:classappend="${category == '일식'} ? ' active'">
+                일식
+            </a>
+
+            <a
+                    th:href="@{/shops(category='양식')}"
+                    class="category-button"
+                    th:classappend="${category == '양식'} ? ' active'">
+                양식
+            </a>
+
+            <a
+                    th:href="@{/shops(category='카페')}"
+                    class="category-button"
+                    th:classappend="${category == '카페'} ? ' active'">
+                카페
+            </a>
+
+            <a
+                    th:href="@{/shops(category='디저트')}"
+                    class="category-button"
+                    th:classappend="${category == '디저트'} ? ' active'">
+                디저트
+            </a>
+
+            <a
+                    th:href="@{/shops(category='고기')}"
+                    class="category-button"
+                    th:classappend="${category == '고기'} ? ' active'">
+                고기
+            </a>
+
+            <a
+                    th:href="@{/shops(category='분식')}"
+                    class="category-button"
+                    th:classappend="${category == '분식'} ? ' active'">
+                분식
+            </a>
+
+            <a
+                    th:href="@{/shops(category='패스트푸드')}"
+                    class="category-button"
+                    th:classappend="${category == '패스트푸드'} ? ' active'">
+                패스트푸드
+            </a>
+
+            <a
+                    th:href="@{/shops(category='술집')}"
+                    class="category-button"
+                    th:classappend="${category == '술집'} ? ' active'">
+                술집
+            </a>
+
+        </div>
+
+
+
+    </section>
+
+
+    <!-- 가게 목록 -->
+    <section class="restaurant-section">
+
+        <div class="section-title">
+
+            <h2>
+                맛집 목록
+            </h2>
+
+     
+
+            <div class="sort-menu">
+
+                 <span
+                         class="restaurant-count"
+                         th:text="|총 ${shopPage.totalElements}개의 가게|">
+                총 0개의 가게
+            </span>
+
+                <a th:href="@{/shops(
+        category=${category},
+        sort='views'
+    )}"
+                   th:classappend="${sort == 'views'} ? ' active'">
+                    조회수순
+                </a>
+
+                <a th:href="@{/shops(
+        category=${category},
+        sort='rating'
+    )}"
+                   th:classappend="${sort == 'rating'} ? ' active'">
+                    별점순
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- 데이터 없음 -->
+        <div
+                class="empty-message"
+                th:if="${#lists.isEmpty(shops)}">
+
+            등록된 가게가 없습니다.
+
+        </div>
+
+
+        <a class="restaurant-card-link"
+           th:each="shop : ${shops}"
+           th:href="@{/shops/{id}(id=${shop.id})}">
+
+            <article class="restaurant-card">
+
+                <div class="image-wrapper">
+
+                    <img
+                            th:if="${shop.thumbnail != null and !shop.thumbnail.isEmpty()}"
+                            th:src="${shop.thumbnail}"
+                            th:alt="${shop.shopName}">
+
+                    <div
+                            th:if="${shop.thumbnail == null or shop.thumbnail.isEmpty()}"
+                            class="image-placeholder">
+                        FOODY
+                    </div>
+
+                    <span
+                            class="category-badge"
+                            th:text="${shop.category}">
+                한식
+            </span>
+
+                </div>
+
+                <div class="card-content">
+
+                    <div class="card-title-row">
+
+                        <h3 th:text="${shop.shopName}">
+                            가게 이름
+                        </h3>
+
+                        <div class="rating">
+                            ★
+                            <span th:text="${shop.avgRating}">
+                        4.5
+                    </span>
+                        </div>
+
+                    </div>
+
+                    <p class="address"
+                       th:text="${shop.address}">
+                        주소
+                    </p>
+
+                    <p class="description"
+                       th:text="${shop.detail}">
+                        설명
+                    </p>
+
+                    <div class="card-bottom">
+
+                <span class="view-count">
+                    조회
+                    <span th:text="${shop.viewCount}">
+                        0
+                    </span>
+                </span>
+
+                        <span class="detail-button">
+                    자세히 보기 →
+                </span>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+        </a>
+
+        <!-- 페이지네이션 -->
+        <div
+                class="pagination"
+                th:if="${shopPage.totalPages > 1}">
+
+
+            <!-- 이전 -->
+            <a
+                    class="page-button page-arrow"
+                    th:if="${shopPage.hasPrevious()}"
+                    th:href="@{/shops(
+                    page=${shopPage.number - 1},
+                    category=${category}
+                )}">
+
+                이전
+
+            </a>
+
+
+            <!-- 페이지 번호 -->
+            <a
+                    class="page-button"
+                    th:each="pageNumber : ${#numbers.sequence(0, shopPage.totalPages - 1)}"
+                    th:href="@{/shops(
+                    page=${pageNumber},
+                    category=${category}
+                )}"
+                    th:text="${pageNumber + 1}"
+                    th:classappend="${pageNumber == shopPage.number} ? ' active'">
+
+                1
+
+            </a>
+
+
+            <!-- 다음 -->
+            <a
+                    class="page-button page-arrow"
+                    th:if="${shopPage.hasNext()}"
+                    th:href="@{/shops(
+                    page=${shopPage.number + 1},
+                    category=${category}
+                )}">
+
+                다음
+
+            </a>
+
+        </div>
+
+
+        <!-- 현재 페이지 정보 -->
+        <p
+                class="page-info"
+                th:if="${shopPage.totalPages > 0}"
+                th:text="|${shopPage.number + 1} / ${shopPage.totalPages} 페이지|">
+
+            1 / 5 페이지
+
+        </p>
+
+    </section>
+
+</main>
+
+
+<footer class="footer">
+    FOODY © 2026
+</footer>
+
+</body>
+</html>
