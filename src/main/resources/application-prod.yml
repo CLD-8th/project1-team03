@@ -1,0 +1,43 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      username: ${REDIS_USERNAME}
+      password: ${REDIS_PASSWORD}
+
+board:
+  cache:
+    ttl-seconds: 600
+  jwt:
+    secret: ${JWT_SECRET}
+    access-expire-minutes: 30
+    refresh-expire-days: 7
+  post:
+    max-title-length: 100
+    max-content-length: 3000
+
+logging:
+  level:
+    team1.foody: info
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # 운영에서는 상태만 노출. 나머지는 설정과 환경 값이 드러남.
+        include: health
+  endpoint:
+    health:
+      show-details: never
