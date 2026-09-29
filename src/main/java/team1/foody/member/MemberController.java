@@ -34,7 +34,7 @@ public class MemberController {
     @PostMapping
     public ResponseEntity<MemberResponse> join(@Valid @RequestBody MemberRequest request) {
         MemberResponse created = memberService.join(
-                request.email(), request.password(), request.nickname());
+                request.userId(), request.password(), request.nickname());
         URI location = URI.create("/api/members/" + created.id());
         return ResponseEntity.created(location).body(created);
     }
