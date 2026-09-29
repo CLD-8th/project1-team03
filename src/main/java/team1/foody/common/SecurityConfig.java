@@ -36,7 +36,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // 화면 파일은 인증 없이 제공.
-                        .requestMatchers("/", "/*.html", "/css/**", "/js/**", "/img/**").permitAll()
+                        .requestMatchers("/", "/*.html", "/*.css", "/css/**", "/js/**", "/img/**").permitAll()
                         // 가입과 로그인은 공개.
                         .requestMatchers(HttpMethod.POST, "/api/members").permitAll()
                         // 로그아웃은 누구인지 알아야 하므로 인증 대상.
@@ -49,8 +49,7 @@ public class SecurityConfig {
                         // 경로만으로 판단 가능한 경우는 설정에서 처리.
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // 조회는 공개.
-                        .requestMatchers(HttpMethod.GET, "/api/posts", "/api/posts/*").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/posts/*/comments").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/shops/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/members/*").permitAll()
                         // 나머지는 인증 필요.
                         .anyRequest().authenticated())
