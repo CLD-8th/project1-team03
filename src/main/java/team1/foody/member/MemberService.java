@@ -21,11 +21,11 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public MemberResponse join(String email, String password, String nickname) {
-        if (memberRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("이미 가입된 이메일");
+    public MemberResponse join(String userId, String password, String nickname) {
+        if (memberRepository.existsByUserId(userId)) {
+            throw new IllegalArgumentException("이미 가입된 아이디");
         }
-        Member saved = memberRepository.save(new Member(email, passwordEncoder.encode(password), nickname));
+        Member saved = memberRepository.save(new Member(userId, passwordEncoder.encode(password), nickname));
         return MemberResponse.from(saved);
     }
 

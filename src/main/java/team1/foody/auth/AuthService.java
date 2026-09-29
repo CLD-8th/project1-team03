@@ -16,7 +16,7 @@ import java.time.Duration;
  * 로그인 처리.
  *
  * 실패 사유를 구분해 응답하지 않음.
- * 구분하면 그 이메일의 가입 여부를 확인하는 수단이 됨.
+ * 구분하면 그 아이디의 가입 여부를 확인하는 수단이 됨.
  */
 @Service
 @RequiredArgsConstructor
@@ -29,8 +29,8 @@ public class AuthService {
     private final TokenStore tokenStore;
     private final JwtProperties jwtProperties;
 
-    public TokenResponse login(String email, String password) {
-        Member member = memberRepository.findByEmail(email)
+    public TokenResponse login(String userId, String password) {
+        Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new UnauthorizedException("인증 실패"));
 
         if (!passwordEncoder.matches(password, member.getPassword())) {

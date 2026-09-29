@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 /**
  * 회원 엔티티.
  *
- * 이메일은 중복될 수 없으므로 제약을 지정.
+ * 아이디는 중복될 수 없으므로 제약을 지정.
  */
 @Entity
 @Getter
@@ -28,12 +28,12 @@ public class Member {
     private Long id;
 
     @Column(nullable = false, unique = true, length = 100)
-    private String email;
+    private String userId;
 
     @Column(nullable = false, length = 100)
     private String password;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 20)
     private String nickname;
 
     // 역할.
@@ -46,8 +46,8 @@ public class Member {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public Member(String email, String password, String nickname) {
-        this.email = email;
+    public Member(String userID, String password, String nickname) {
+        this.userId = userID;
         this.password = password;
         this.nickname = nickname;
         this.role = Role.USER;
