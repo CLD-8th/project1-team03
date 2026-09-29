@@ -20,13 +20,13 @@
 
         <nav class="nav">
 
-            /* 로그인 안 된 상태 */
+
             <th:block th:if="${session.loginMember == null}">
                 <a href="/login">로그인</a>
                 <a href="/join">회원가입</a>
             </th:block>
 
-            /* 로그인 */
+
             <th:block th:if="${session.loginMember != null}">
         <span th:text="|${session.loginMember.nickname}님|">
             닉네임님
