@@ -35,16 +35,17 @@ public class TokenProvider {
         return Keys.hmacShaKeyFor(jwtProperties.secret().getBytes(StandardCharsets.UTF_8));
     }
 
-    public String issueAccessToken(Long memberId, String role) {
+    public String issueAccessToken(Long memberId) {
         Date now = new Date();
 
         return Jwts.builder()
                 .subject(String.valueOf(memberId))
-                .claim("role", role)
                 .claim("type", TYPE_ACCESS)
                 .issuedAt(now)
-                .expiration(new Date(now.getTime()
-                        + jwtProperties.accessExpireMinutes() * 60 * 1000L))
+                .expiration(new Date(
+                        now.getTime()
+                                + jwtProperties.accessExpireMinutes() * 60 * 1000L
+                ))
                 .signWith(key())
                 .compact();
     }
@@ -100,9 +101,7 @@ public class TokenProvider {
         return Long.valueOf(parse(token).getSubject());
     }
 
-    public String getRole(String token) {
-        return parse(token).get("role", String.class);
-    }
+
 
     public boolean isValid(String token) {
         try {

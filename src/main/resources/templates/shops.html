@@ -21,20 +21,18 @@
         <nav class="nav">
 
 
-            <th:block th:if="${session.loginMember == null}">
+            <div id="guestMenu">
                 <a href="/login">로그인</a>
-                <a href="/join">회원가입</a>
-            </th:block>
+                <a href="/signup">회원가입</a>
+            </div>
 
-
-            <th:block th:if="${session.loginMember != null}">
-        <span th:text="|${session.loginMember.nickname}님|">
-            닉네임님
-        </span>
-
+            <div id="memberMenu" style="display: none;">
+                <span id="nickname"></span>
                 <a href="/mypage">마이페이지</a>
-                <a href="/logout">로그아웃</a>
-            </th:block>
+                <button type="button" id="logoutButton">
+                    로그아웃
+                </button>
+            </div>
 
         </nav>
 
@@ -331,6 +329,6 @@
 <footer class="footer">
     FOODY © 2026 멋쟁이 사자처럼 클라우드 8기 3팀
 </footer>
-
+<script src="/shops.js"></script>
 </body>
 </html>

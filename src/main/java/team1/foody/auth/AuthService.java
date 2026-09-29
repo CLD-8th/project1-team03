@@ -37,7 +37,7 @@ public class AuthService {
             throw new UnauthorizedException("인증 실패");
         }
 
-        String access = tokenProvider.issueAccessToken(member.getId(), member.getRole().name());
+        String access = tokenProvider.issueAccessToken(member.getId());
         String refresh = tokenProvider.issueRefreshToken(member.getId());
 
         // 갱신 토큰을 보관.
@@ -70,7 +70,7 @@ public class AuthService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException("회원 부재"));
 
-        return tokenProvider.issueAccessToken(member.getId(), member.getRole().name());
+        return tokenProvider.issueAccessToken(member.getId());
     }
 
     /**

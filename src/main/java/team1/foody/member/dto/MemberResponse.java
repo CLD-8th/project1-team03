@@ -13,13 +13,14 @@ public record MemberResponse(
         Long id,
         String userId,
         String nickname,
-        LocalDateTime createdAt
+        LocalDateTime UpdatedAt
 ) {
     public static MemberResponse from(Member member) {
         return new MemberResponse(
                 member.getId(),
                 member.getUserId(),
                 member.getNickname(),
-                member.getCreatedAt());
+                member.getUpdatedAt()
+        );
     }
 }
