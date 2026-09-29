@@ -1,6 +1,5 @@
 package team1.foody.common;
 
-import team1.foody.auth.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,12 +10,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import team1.foody.auth.JwtAuthenticationFilter;
 
-/**
- * 접근 규칙.
- *
- * JWT 인증을 사용하며 서버 세션은 사용하지 않음.
- */
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -42,12 +37,12 @@ public class SecurityConfig {
                         // 화면 / 정적 파일
                         // ==============================
                         .requestMatchers(
-
                                 "/",
                                 "/shops",
                                 "/shops/**",
                                 "/login",
                                 "/signup",
+                                "/mypage",
                                 "/*.html",
                                 "/*.css",
                                 "/*.js",
@@ -61,6 +56,15 @@ public class SecurityConfig {
                                 "/img/**",
                                 "/favicon.ico"
                         ).permitAll()
+
+                        // ==============================
+                        // 마이페이지 API
+                        // 반드시 로그인 필요
+                        // ==============================
+                        .requestMatchers(
+                                "/api/members/me",
+                                "/api/members/me/**"
+                        ).authenticated()
 
                         // ==============================
                         // 회원가입
@@ -81,7 +85,6 @@ public class SecurityConfig {
 
                         // ==============================
                         // 로그아웃
-                        // 로그인한 사용자만
                         // ==============================
                         .requestMatchers(
                                 HttpMethod.POST,
@@ -96,7 +99,6 @@ public class SecurityConfig {
                                 "/actuator/health/**"
                         ).permitAll()
 
-                        // 나머지 actuator는 로그인 필요
                         .requestMatchers(
                                 "/actuator/**"
                         ).authenticated()
@@ -112,15 +114,24 @@ public class SecurityConfig {
                         ).permitAll()
 
                         // ==============================
-                        // 회원 조회
+                        // 리뷰 공개 조회
                         // ==============================
                         .requestMatchers(
                                 HttpMethod.GET,
-                                "/api/members/*","/api/shops/*/reviews"
+                                "/api/shops/*/reviews"
                         ).permitAll()
 
                         // ==============================
-                        // 나머지는 로그인 필요
+                        // 일반 회원 조회
+                        // 단 /me 는 위에서 이미 authenticated
+                        // ==============================
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/members/*"
+                        ).permitAll()
+
+                        // ==============================
+                        // 나머지 로그인 필요
                         // ==============================
                         .anyRequest().authenticated()
                 )

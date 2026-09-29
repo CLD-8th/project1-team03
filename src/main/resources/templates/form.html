@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>마이페이지 - Foody</title>
+    <link href="../form.css" rel="stylesheet">
+
+
+</head>
+
+<body>
+
+<header class="top">
+    <div class="top-inner">
+        <h1>마이페이지</h1>
+        <div class="sub">내 정보 및 리뷰 관리</div>
+    </div>
+</header>
+
+<div class="layout">
+
+    <!-- 내 정보 -->
+    <div class="profile">
+        <div id="welcome" class="who">회원 정보를 불러오는 중...</div>
+
+        <button
+                class="btn-quiet"
+                id="toggleEdit"
+                aria-expanded="false"
+                aria-controls="editPanel">
+            내 정보 수정
+        </button>
+    </div>
+
+    <div id="editPanel" hidden>
+
+        <div class="panel">
+            <h2>닉네임</h2>
+
+            <div class="user-id">
+                아이디 <b id="userId"></b>
+            </div>
+
+            <label>
+                닉네임 (20자 이하)
+                <input
+                        id="nickname"
+                        maxlength="20"
+                        autocomplete="nickname">
+            </label>
+
+            <button class="btn" id="saveNickname">
+                닉네임 저장
+            </button>
+
+            <div id="nicknameMsg" class="msg"></div>
+        </div>
+
+        <div class="panel">
+            <h2>비밀번호</h2>
+
+            <label>
+                현재 비밀번호
+                <input
+                        id="currentPassword"
+                        type="password"
+                        autocomplete="current-password">
+            </label>
+
+            <label>
+                새 비밀번호 (8자 이상)
+                <input
+                        id="newPassword"
+                        type="password"
+                        autocomplete="new-password">
+            </label>
+
+            <button class="btn" id="savePassword">
+                비밀번호 변경
+            </button>
+
+            <div id="passwordMsg" class="msg"></div>
+        </div>
+    </div>
+
+    <!-- 내 리뷰 -->
+    <h2 class="list-title">내가 쓴 리뷰</h2>
+
+    <div id="reviews"></div>
+
+    <div id="reviewMsg" class="msg"></div>
+</div>
+
+<script>
+    /*
+     * API 주소
+     */
+    const API = {
+        me: "/api/members/me",
+        myReviews: "/api/members/me/reviews",
+        review: (id) => `/api/members/me/reviews/${id}`
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+
+    /*
+     * 로그인 토큰 확인
+     */
+    function getAccessToken() {
+        return localStorage.getItem("accessToken");
+    }
+
+
+    /*
+     * JWT 인증 헤더
+     */
+    function authHeaders(includeJson = true) {
+
+        const token = getAccessToken();
+
+        if (!token) {
+            window.location.href = "/login";
+            throw new Error("로그인이 필요합니다.");
+        }
+
+        const headers = {
+            Authorization: `Bearer ${token}`
+        };
+
+        if (includeJson) {
+            headers["Content-Type"] = "application/json";
+        }
+
+        return headers;
+    }
+
+
+    /*
+     * 공통 API 호출
+     */
+    async function request(method, url, body = undefined) {
+
+        const res = await fetch(url, {
+            method: method,
+            headers: authHeaders(true),
+            body: body !== undefined
+                ? JSON.stringify(body)
+                : undefined
+        });
+
+        /*
+         * 인증 실패
+         */
+        if (res.status === 401) {
+
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            localStorage.removeItem("memberId");
+            localStorage.removeItem("nickname");
+
+            alert("로그인이 만료되었거나 인증 정보가 없습니다.");
+
+            window.location.href = "/login";
+
+            throw new Error("인증이 필요합니다.");
+        }
+
+        const text = await res.text();
+
+        let data = null;
+
+        if (text) {
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                data = text;
+            }
+        }
+
+        if (!res.ok) {
+
+            const message =
+                data &&
+                typeof data === "object" &&
+                data.message
+                    ? data.message
+                    : `요청에 실패했습니다. (${res.status})`;
+
+            throw new Error(message);
+        }
+
+        return data;
+    }
+
+
+    /*
+     * 메시지 출력
+     */
+    function show(element, text, ok) {
+
+        element.textContent = text;
+
+        element.className =
+            "msg " + (ok ? "ok" : "err");
+    }
+
+
+    /*
+     * 내 정보 조회
+     */
+    async function loadMe() {
+
+        try {
+
+            const me = await request(
+                "GET",
+                API.me
+            );
+
+            $("userId").textContent =
+                me.userId ?? "";
+
+            $("nickname").value =
+                me.nickname ?? "";
+
+            $("welcome").textContent =
+                `${me.nickname ?? ""} 님 (${me.userId ?? ""})`;
+
+        } catch (e) {
+
+            console.error(e);
+
+            $("welcome").textContent =
+                e.message;
+        }
+    }
+
+
+    /*
+     * 닉네임 저장
+     */
+    $("saveNickname").addEventListener(
+        "click",
+        async () => {
+
+            const nickname =
+                $("nickname").value.trim();
+
+            if (!nickname) {
+
+                show(
+                    $("nicknameMsg"),
+                    "닉네임을 입력해주세요.",
+                    false
+                );
+
+                return;
+            }
+
+            try {
+
+                const me = await request(
+                    "PATCH",
+                    API.me,
+                    {
+                        nickname: nickname
+                    }
+                );
+
+                $("welcome").textContent =
+                    `${me.nickname} 님 (${me.userId})`;
+
+                localStorage.setItem(
+                    "nickname",
+                    me.nickname
+                );
+
+                show(
+                    $("nicknameMsg"),
+                    "닉네임이 저장됐어요.",
+                    true
+                );
+
+            } catch (e) {
+
+                show(
+                    $("nicknameMsg"),
+                    e.message,
+                    false
+                );
+            }
+        }
+    );
+
+
+    /*
+     * 비밀번호 변경
+     */
+    $("savePassword").addEventListener(
+        "click",
+        async () => {
+
+            const currentPassword =
+                $("currentPassword").value;
+
+            const newPassword =
+                $("newPassword").value;
+
+            if (!currentPassword) {
+
+                show(
+                    $("passwordMsg"),
+                    "현재 비밀번호를 입력해주세요.",
+                    false
+                );
+
+                return;
+            }
+
+            if (!newPassword) {
+
+                show(
+                    $("passwordMsg"),
+                    "새 비밀번호를 입력해주세요.",
+                    false
+                );
+
+                return;
+            }
+
+            if (newPassword.length < 8) {
+
+                show(
+                    $("passwordMsg"),
+                    "새 비밀번호는 8자 이상이어야 합니다.",
+                    false
+                );
+
+                return;
+            }
+
+            try {
+
+                await request(
+                    "PATCH",
+                    API.me,
+                    {
+                        currentPassword:
+                        currentPassword,
+
+                        newPassword:
+                        newPassword
+                    }
+                );
+
+                $("currentPassword").value =
+                    "";
+
+                $("newPassword").value =
+                    "";
+
+                show(
+                    $("passwordMsg"),
+                    "비밀번호가 변경됐어요.",
+                    true
+                );
+
+            } catch (e) {
+
+                show(
+                    $("passwordMsg"),
+                    e.message,
+                    false
+                );
+            }
+        }
+    );
+
+
+    /*
+     * 내 정보 수정 영역 토글
+     */
+    $("toggleEdit").addEventListener(
+        "click",
+        () => {
+
+            const panel =
+                $("editPanel");
+
+            panel.hidden =
+                !panel.hidden;
+
+            $("toggleEdit").setAttribute(
+                "aria-expanded",
+                String(!panel.hidden)
+            );
+        }
+    );
+
+
+    /*
+     * 내 리뷰 목록 조회
+     */
+    async function loadReviews() {
+
+        const box =
+            $("reviews");
+
+        box.innerHTML = "";
+
+        $("reviewMsg").textContent = "";
+
+        try {
+
+            const list = await request(
+                "GET",
+                API.myReviews
+            );
+
+            if (
+                !Array.isArray(list) ||
+                list.length === 0
+            ) {
+
+                const empty =
+                    document.createElement("div");
+
+                empty.className =
+                    "empty";
+
+                empty.textContent =
+                    "작성한 리뷰가 없어요. 가게 상세 페이지에서 첫 리뷰를 남겨 보세요.";
+
+                box.appendChild(empty);
+
+                return;
+            }
+
+            list.forEach(review => {
+
+                box.appendChild(
+                    renderReview(review)
+                );
+            });
+
+        } catch (e) {
+
+            console.error(e);
+
+            show(
+                $("reviewMsg"),
+                e.message,
+                false
+            );
+        }
+    }
+
+
+    /*
+     * 리뷰 카드 생성
+     */
+    function renderReview(r) {
+
+        const wrap =
+            document.createElement("div");
+
+        wrap.className =
+            "review";
+
+
+        /*
+         * 헤더
+         */
+        const head =
+            document.createElement("div");
+
+        head.className =
+            "review-head";
+
+
+        /*
+         * 가게 링크
+         */
+        const link =
+            document.createElement("a");
+
+        link.className =
+            "shop";
+
+        link.href =
+            `/shops/${r.shopId}`;
+
+        link.textContent =
+            r.shopName
+            || `가게 #${r.shopId}`;
+
+
+        /*
+         * 별점
+         */
+        const rating =
+            Number(r.rating) || 0;
+
+        const stars =
+            document.createElement("span");
+
+        stars.className =
+            "stars";
+
+        stars.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        stars.textContent =
+            "★".repeat(rating)
+            +
+            "☆".repeat(
+                Math.max(0, 5 - rating)
+            );
+
+
+        const score =
+            document.createElement("span");
+
+        score.className =
+            "score";
+
+        score.textContent =
+            `${rating}점`;
+
+
+        head.append(
+            link,
+            stars,
+            score
+        );
+
+
+        /*
+         * 리뷰 내용
+         */
+        const content =
+            document.createElement("p");
+
+        content.className =
+            "review-body";
+
+        content.textContent =
+            r.content ?? "";
+
+
+        /*
+         * 수정 날짜
+         */
+        const meta =
+            document.createElement("div");
+
+        meta.className =
+            "meta";
+
+        if (r.updatedAt) {
+
+            meta.textContent =
+                `수정 ${r.updatedAt
+                    .replace("T", " ")
+                    .slice(0, 16)}`;
+
+        } else {
+
+            meta.textContent = "";
+        }
+
+
+        /*
+         * 버튼
+         */
+        const actions =
+            document.createElement("div");
+
+        actions.className =
+            "review-actions";
+
+
+        const editBtn =
+            document.createElement("button");
+
+        editBtn.className =
+            "btn-quiet";
+
+        editBtn.textContent =
+            "수정";
+
+        editBtn.addEventListener(
+            "click",
+            () => editReview(r)
+        );
+
+
+        const deleteBtn =
+            document.createElement("button");
+
+        deleteBtn.className =
+            "btn-quiet danger";
+
+        deleteBtn.textContent =
+            "🗑 삭제";
+
+        deleteBtn.addEventListener(
+            "click",
+            () => deleteReview(r)
+        );
+
+
+        actions.append(
+            editBtn,
+            deleteBtn
+        );
+
+
+        wrap.append(
+            head,
+            content,
+            meta,
+            actions
+        );
+
+        return wrap;
+    }
+
+
+    /*
+     * 리뷰 수정
+     */
+    async function editReview(r) {
+
+        const content =
+            prompt(
+                "리뷰 내용을 수정하세요.",
+                r.content ?? ""
+            );
+
+        if (content === null) {
+            return;
+        }
+
+
+        const ratingText =
+            prompt(
+                "별점을 입력하세요. (1~5)",
+                r.rating
+            );
+
+        if (ratingText === null) {
+            return;
+        }
+
+
+        const rating =
+            Number(ratingText);
+
+
+        if (
+            !Number.isInteger(rating) ||
+            rating < 1 ||
+            rating > 5
+        ) {
+
+            show(
+                $("reviewMsg"),
+                "별점은 1~5 사이의 정수여야 해요.",
+                false
+            );
+
+            return;
+        }
+
+
+        /*
+         * 현재 DTO에서는 id가 리뷰 ID
+         */
+        const reviewId =
+            r.id ?? r.reviewId;
+
+
+        if (!reviewId) {
+
+            show(
+                $("reviewMsg"),
+                "리뷰 ID를 찾을 수 없습니다.",
+                false
+            );
+
+            return;
+        }
+
+
+        try {
+
+            await request(
+                "PATCH",
+                API.review(reviewId),
+                {
+                    rating: rating,
+                    content: content
+                }
+            );
+
+
+            show(
+                $("reviewMsg"),
+                "리뷰를 수정했어요.",
+                true
+            );
+
+
+            await loadReviews();
+
+        } catch (e) {
+
+            show(
+                $("reviewMsg"),
+                e.message,
+                false
+            );
+        }
+    }
+
+
+    /*
+     * 리뷰 삭제
+     */
+    async function deleteReview(r) {
+
+        const shopName =
+            r.shopName
+            || `가게 #${r.shopId}`;
+
+
+        const ok =
+            confirm(
+                `'${shopName}' 리뷰를 삭제할까요?`
+            );
+
+
+        if (!ok) {
+            return;
+        }
+
+
+        /*
+         * 현재 DTO에서는 id가 리뷰 ID
+         */
+        const reviewId =
+            r.id ?? r.reviewId;
+
+
+        if (!reviewId) {
+
+            show(
+                $("reviewMsg"),
+                "리뷰 ID를 찾을 수 없습니다.",
+                false
+            );
+
+            return;
+        }
+
+
+        try {
+
+            await request(
+                "DELETE",
+                API.review(reviewId)
+            );
+
+
+            show(
+                $("reviewMsg"),
+                "리뷰를 삭제했어요.",
+                true
+            );
+
+
+            await loadReviews();
+
+        } catch (e) {
+
+            show(
+                $("reviewMsg"),
+                e.message,
+                false
+            );
+        }
+    }
+
+
+    /*
+     * 페이지 시작
+     */
+    document.addEventListener(
+        "DOMContentLoaded",
+        async () => {
+
+            /*
+             * 로그인 안 돼 있으면
+             * 마이페이지 진입 방지
+             */
+            if (!getAccessToken()) {
+
+                window.location.href =
+                    "/login";
+
+                return;
+            }
+
+
+            await Promise.all([
+                loadMe(),
+                loadReviews()
+            ]);
+        }
+    );
+</script>
+
+</body>
+</html>

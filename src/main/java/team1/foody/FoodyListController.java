@@ -132,4 +132,9 @@ public class FoodyListController {
     public String loginPage() {
         return "login";
     }
+
+    @GetMapping("/mypage")
+    public String mypage() {
+        return "form";
+    }
 }

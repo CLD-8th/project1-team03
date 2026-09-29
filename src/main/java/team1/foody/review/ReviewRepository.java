@@ -1,27 +1,29 @@
 package team1.foody.review;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-<<<<<<< HEAD
-
-=======
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.math.BigDecimal;
->>>>>>> main
 import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
-<<<<<<< HEAD
-    // FR-09: 내가 쓴 리뷰 목록 (가게 정보를 한 번에 가져와서 추가 쿼리 방지)
-    @org.springframework.data.jpa.repository.Query(
-            "select r from Review r join fetch r.shop " +
-                    "where r.member.id = :memberId order by r.updatedAt desc")
-    List<Review> findByMemberId(@org.springframework.data.repository.query.Param("memberId") Long memberId);
-=======
+    /**
+     * 가게별 리뷰 목록
+     */
     List<Review> findByShopIdOrderByIdDesc(Long shopId);
 
+
+    /**
+     * 회원이 작성한 리뷰 목록
+     * 마이페이지에서 사용
+     */
+    List<Review> findByMemberIdOrderByUpdatedAtDesc(Long memberId);
+
+
+    /**
+     * 가게 리뷰 평균 별점
+     */
     @Query("""
             SELECT AVG(r.rating)
             FROM Review r
@@ -30,5 +32,4 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Double findAverageRatingByShopId(
             @Param("shopId") Long shopId
     );
->>>>>>> main
 }

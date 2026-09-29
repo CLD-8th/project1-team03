@@ -30,14 +30,6 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-<<<<<<< HEAD
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.security:spring-security-crypto'
-
-	runtimeOnly 'com.h2database:h2'
-	implementation 'org.springframework.boot:spring-boot-h2console'
-//	 runtimeOnly 'com.mysql:mysql-connector-j'
-=======
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -54,22 +46,14 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
->>>>>>> main
 
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
-<<<<<<< HEAD
-	runtimeOnly 'com.h2database:h2'
-=======
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
 
 	testRuntimeOnly 'com.h2database:h2'
->>>>>>> main
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
 }
 
 tasks.named('test') {
