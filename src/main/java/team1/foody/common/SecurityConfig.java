@@ -42,6 +42,7 @@ public class SecurityConfig {
                         // 화면 / 정적 파일
                         // ==============================
                         .requestMatchers(
+
                                 "/",
                                 "/shops",
                                 "/shops/**",
@@ -56,6 +57,7 @@ public class SecurityConfig {
                                 "/*.gif",
                                 "/css/**",
                                 "/js/**",
+                                "/uploads/**",
                                 "/img/**",
                                 "/favicon.ico"
                         ).permitAll()
@@ -114,7 +116,7 @@ public class SecurityConfig {
                         // ==============================
                         .requestMatchers(
                                 HttpMethod.GET,
-                                "/api/members/*"
+                                "/api/members/*","/api/shops/*/reviews"
                         ).permitAll()
 
                         // ==============================
