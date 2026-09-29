@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>FOODY 회원가입</title>
+</head>
+<body>
+
+<h1>회원가입</h1>
+
+<form id="signupForm">
+    <div>
+        <label for="userId">아이디</label>
+        <input
+                type="text"
+                id="userId"
+                placeholder="아이디를 입력하세요"
+                maxlength="100"
+                required>
+    </div>
+
+    <div>
+        <label for="password">비밀번호</label>
+        <input
+                type="password"
+                id="password"
+                minlength="4"
+                placeholder="4자 이상"
+                required>
+    </div>
+
+    <div>
+        <label for="passwordConfirm">비밀번호 확인</label>
+        <input
+                type="password"
+                id="passwordConfirm"
+                minlength="4"
+                required>
+    </div>
+
+    <div>
+        <label for="nickname">닉네임</label>
+        <input
+                type="text"
+                id="nickname"
+                maxlength="20"
+                required>
+    </div>
+
+    <button type="submit">가입하기</button>
+</form>
+
+<p>
+    이미 계정이 있나요?
+    <a href="/login">로그인</a>
+</p>
+
+<script>
+    const form = document.getElementById("signupForm");
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const userId = document.getElementById("userId").value.trim();
+        const password = document.getElementById("password").value;
+        const passwordConfirm =
+            document.getElementById("passwordConfirm").value;
+        const nickname =
+            document.getElementById("nickname").value.trim();
+
+        if (!userId || !password || !nickname) {
+            alert("모든 입력값을 확인해주세요.");
+            return;
+        }
+
+        if (password.length < 4) {
+            alert("비밀번호는 4자 이상이어야 합니다.");
+            return;
+        }
+
+        if (password !== passwordConfirm) {
+            alert("비밀번호가 일치하지 않습니다.");
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/members", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    userId,
+                    password,
+                    nickname
+                })
+            });
+
+            const data = await response.json();
+
+            console.log("status:", response.status);
+            console.log("response:", data);
+
+            if (!response.ok) {
+                if (data.fields) {
+                    const messages =
+                        Object.values(data.fields).join("\n");
+                    alert(messages);
+                } else {
+                    alert(
+                        data.message ||
+                        "회원가입에 실패했습니다."
+                    );
+                }
+
+                return;
+            }
+
+            alert("회원가입이 완료되었습니다.");
+            location.href = "/login";
+
+        } catch (error) {
+            console.error(error);
+            alert("서버 통신 중 오류가 발생했습니다.");
+        }
+    });
+</script>
+
+</body>
+</html>

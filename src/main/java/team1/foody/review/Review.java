@@ -1,6 +1,7 @@
 package team1.foody.review;
 
 import jakarta.persistence.*;
+<<<<<<< HEAD
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -10,18 +11,24 @@ import org.hibernate.annotations.UpdateTimestamp;
 import team1.foody.member.Member;
 import team1.foody.shop.Shop;
 
+=======
+>>>>>>> main
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "review")
+<<<<<<< HEAD
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+=======
+>>>>>>> main
 public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+<<<<<<< HEAD
     @Column(nullable = false)
     private Integer rating;   // 별점
 
@@ -58,4 +65,43 @@ public class Review {
         this.rating = rating;
         this.content = content;
     }
+=======
+    private int rating;
+
+    @Column(columnDefinition = "TEXT")
+    private String content;
+
+    private String imageUrl;
+
+    // DB가 자동으로 넣고 갱신하므로 JPA는 건드리지 않음
+    @Column(insertable = false, updatable = false)
+    private LocalDateTime updatedAt;
+
+    private Long memberId;
+    private Long shopId;
+
+    protected Review() {}
+
+    public Review(Long shopId, Long memberId, int rating, String content, String imageUrl) {
+        this.shopId = shopId;
+        this.memberId = memberId;
+        this.rating = rating;
+        this.content = content;
+        this.imageUrl = imageUrl;
+    }
+
+    public void update(int rating, String content, String imageUrl) {
+        this.rating = rating;
+        this.content = content;
+        if (imageUrl != null) this.imageUrl = imageUrl;   // 새 사진 없으면 기존 사진 유지
+    }
+
+    public Long getId() { return id; }
+    public int getRating() { return rating; }
+    public String getContent() { return content; }
+    public String getImageUrl() { return imageUrl; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public Long getMemberId() { return memberId; }
+    public Long getShopId() { return shopId; }
+>>>>>>> main
 }

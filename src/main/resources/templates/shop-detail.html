@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title th:text="|${shop.shopName} - FOODY|">가게 상세 - FOODY</title>
+
+    <link rel="stylesheet" th:href="@{/index.css}">
+    <link rel="stylesheet" th:href="@{/shop-detail.css}">
+</head>
+
+<body>
+
+<header class="header">
+    <div class="header-inner">
+
+        <a href="/" class="logo">
+            FOODY
+        </a>
+
+        <nav class="nav">
+
+            <div id="guestMenu">
+                <a href="/login">로그인</a>
+                <a href="/signup">회원가입</a>
+            </div>
+
+            <div id="memberMenu" style="display: none;">
+                <span id="nickname"></span>
+
+                <a href="/mypage">
+                    마이페이지
+                </a>
+
+                <button type="button" id="logoutButton">
+                    로그아웃
+                </button>
+            </div>
+
+        </nav>
+
+    </div>
+</header>
+
+
+<main class="detail-container">
+
+    <a href="/" class="back-link">
+        ← 맛집 목록으로
+    </a>
+
+
+    <section class="shop-detail">
+
+        <!-- 이미지 -->
+        <div class="shop-image-area">
+
+            <img
+                    th:if="${shop.thumbnail != null and !shop.thumbnail.isEmpty()}"
+                    th:src="${shop.thumbnail}"
+                    th:alt="${shop.shopName}"
+                    class="shop-image">
+
+            <div
+                    th:if="${shop.thumbnail == null or shop.thumbnail.isEmpty()}"
+                    class="shop-image-placeholder">
+                FOODY
+            </div>
+
+        </div>
+
+
+        <!-- 가게 정보 -->
+        <div class="shop-info">
+
+            <span
+                    class="category-badge"
+                    th:text="${shop.category}">
+                한식
+            </span>
+
+            <h1 th:text="${shop.shopName}">
+                가게 이름
+            </h1>
+
+            <div class="shop-meta">
+
+                <div class="rating">
+                    <span class="star">★</span>
+
+                    <strong th:text="${shop.avgRating}">
+                        4.5
+                    </strong>
+                </div>
+
+                <div class="view-count">
+                    조회
+                    <span th:text="${shop.viewCount}">
+                        0
+                    </span>
+                </div>
+
+            </div>
+
+
+            <div class="info-row">
+                <strong>주소</strong>
+
+                <span th:text="${shop.address}">
+                    서울특별시 어딘가
+                </span>
+            </div>
+
+
+            <div class="description">
+
+                <h2>가게 소개</h2>
+
+                <p th:text="${shop.detail}">
+                    가게 설명이 들어갑니다.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- 리뷰 -->
+    <section class="review-section">
+
+        <div class="section-title">
+            <h2>리뷰</h2>
+        </div>
+
+        <!-- 로그인한 사용자에게만 보이는 리뷰 작성 영역 -->
+        <div id="reviewFormArea" style="display: none;">
+
+            <h3>리뷰 작성</h3>
+
+            <form id="reviewForm">
+
+                <div>
+                    <label for="rating">별점</label>
+
+                    <select id="rating" required>
+                        <option value="5">★★★★★ 5점</option>
+                        <option value="4">★★★★☆ 4점</option>
+                        <option value="3">★★★☆☆ 3점</option>
+                        <option value="2">★★☆☆☆ 2점</option>
+                        <option value="1">★☆☆☆☆ 1점</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="reviewContent">리뷰 내용</label>
+
+                    <textarea
+                            id="reviewContent"
+                            rows="5"
+                            placeholder="리뷰를 작성해주세요."
+                            required></textarea>
+                </div>
+
+                <div>
+                    <label for="reviewImage">사진</label>
+
+                    <input
+                            type="file"
+                            id="reviewImage"
+                            accept="image/*">
+                </div>
+
+                <button type="submit">
+                    리뷰 등록
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- 로그인 안 한 사용자 -->
+        <div id="loginReviewMessage" style="display: none;">
+            <p>
+                리뷰를 작성하려면
+                <a href="/login">로그인</a>
+                해주세요.
+            </p>
+        </div>
+
+
+        <!-- 등록된 리뷰 목록 -->
+        <div id="reviewList">
+
+            <p class="empty-review">
+                리뷰를 불러오는 중입니다.
+            </p>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer class="footer">
+    FOODY © 2026 멋쟁이 사자처럼 클라우드 8기 3팀
+</footer>
+
+
+<script th:inline="javascript">
+    const shopId = /*[[${shop.id}]]*/ 0;
+</script>
+
+<script src="/shops.js"></script>
+<script src="/shop-detail.js"></script>
+
+</body>
+</html>
