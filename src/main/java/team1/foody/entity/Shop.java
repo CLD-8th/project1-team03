@@ -68,4 +68,11 @@ public class Shop {
     public String getCategory() {
         return category;
     }
+    public void increaseViewCount() {
+        if (this.viewCount == null) {
+            this.viewCount = 1L;
+        } else {
+            this.viewCount++;
+        }
+    }
 }
