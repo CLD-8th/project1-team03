@@ -36,10 +36,12 @@ out/
 ### VS Code ###
 .vscode/
 
-<<<<<<< HEAD
-### Local config (비밀번호 포함, 커밋 금지) ###
+### Local config / secrets ###
+.env
 application-local.properties
-=======
 application-local.yml
+
+### Uploads ###
+uploads/
+
 .DS_Store
->>>>>>> main
